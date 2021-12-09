@@ -1,3 +1,5 @@
+use std::ops;
+
 const CLEARV: u8 = 0b0000_0000;
 const BOLD: u8 = 0b0000_0001;
 const UNDERLINE: u8 = 0b0000_0010;
@@ -19,12 +21,6 @@ static STYLES: [(u8, Styles); 8] = [
     (STRIKETHROUGH, Styles::Strikethrough),
 ];
 
-pub static CLEAR: Style = Style(CLEARV);
-
-/// A combinatorial style such as bold, italics, dimmed, etc.
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub struct Style(u8);
-
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 #[allow(missing_docs)]
 pub enum Styles {
@@ -37,6 +33,20 @@ pub enum Styles {
     Blink,
     Hidden,
     Strikethrough,
+}
+
+impl ops::Add<Styles> for Styles {
+    type Output = Style;
+
+    fn add(self, rhs: Styles) -> Self::Output {
+        Style(self.to_u8() | rhs.to_u8())
+    }
+}
+
+impl Into<Style> for Styles {
+    fn into(self) -> Style {
+        Style(self.to_u8())
+    }
 }
 
 impl Styles {
@@ -86,6 +96,22 @@ impl Styles {
     }
 }
 
+pub static CLEAR: Style = Style(CLEARV);
+pub static ALL: Style = Style(
+    BOLD |
+    UNDERLINE |
+    REVERSED |
+    ITALIC |
+    BLINK |
+    HIDDEN |
+    DIMMED |
+    STRIKETHROUGH
+);
+
+/// A combinatorial style such as bold, italics, dimmed, etc.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub struct Style(u8);
+
 impl Style {
     /// Check if the current style has one of [`Styles`](Styles) switched on.
     ///
@@ -109,9 +135,61 @@ impl Style {
             .collect::<Vec<&str>>()
             .join(";")
     }
+}
 
-    pub(crate) fn add(&mut self, two: Styles) {
-        self.0 |= two.to_u8();
+impl ops::Add<Styles> for Style {
+    type Output = Self;
+
+    fn add(self, rhs: Styles) -> Self::Output {
+        Self(self.0 | rhs.to_u8())
+    }
+}
+
+impl ops::AddAssign<Styles> for Style {
+    fn add_assign(&mut self, rhs: Styles) {
+        self.0 |= rhs.to_u8();
+    }
+}
+
+impl ops::Sub<Styles> for Style {
+    type Output = Self;
+
+    fn sub(self, rhs: Styles) -> Self::Output {
+        Self(self.0 & !rhs.to_u8())
+    }
+}
+
+impl ops::SubAssign<Styles> for Style {
+    fn sub_assign(&mut self, rhs: Styles) {
+        self.0 &= !rhs.to_u8();
+    }
+}
+
+impl ops::Add<Style> for Style {
+    type Output = Self;
+
+    fn add(self, rhs: Style) -> Self::Output {
+        Self(self.0 | rhs.0)
+    }
+}
+
+impl ops::AddAssign<Style> for Style {
+    fn add_assign(&mut self, rhs: Style) {
+        self.0 |= rhs.0;
+    }
+}
+
+impl ops::Sub<Style> for Style {
+    type Output = Self;
+
+    fn sub(self, rhs: Style) -> Self::Output {
+        Self(self.0 & !rhs.0)
+    }
+}
+
+impl ops::SubAssign<Style> for Style {
+    fn sub_assign(&mut self, rhs: Style) {
+        self.0 &= !rhs.0
     }
 }
 
@@ -284,7 +362,7 @@ mod tests {
     #[test]
     fn test_style_contains() {
         let mut style = Style(Styles::Bold.to_u8());
-        style.add(Styles::Italic);
+        style += Styles::Italic;
 
         assert_eq!(style.contains(Styles::Bold), true);
         assert_eq!(style.contains(Styles::Italic), true);

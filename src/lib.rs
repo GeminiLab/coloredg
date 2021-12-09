@@ -292,20 +292,42 @@ pub trait Colorize {
     }
     fn on_color<S: Into<Color>>(self, color: S) -> ColoredString;
     // Styles
+    fn add_style<S: Into<Style>>(self, style: S) -> ColoredString;
+    fn remove_style<S: Into<Style>>(self, style: S) -> ColoredString;
     fn clear(self) -> ColoredString;
-    fn normal(self) -> ColoredString;
-    fn bold(self) -> ColoredString;
-    fn dimmed(self) -> ColoredString;
-    fn italic(self) -> ColoredString;
-    fn underline(self) -> ColoredString;
-    fn blink(self) -> ColoredString;
+    fn normal(self) -> ColoredString where Self: Sized {
+        self.clear()
+    }
+    fn bold(self) -> ColoredString where Self: Sized {
+        self.add_style(Styles::Bold)
+    }
+    fn dimmed(self) -> ColoredString where Self: Sized {
+        self.add_style(Styles::Dimmed)
+    }
+    fn italic(self) -> ColoredString where Self: Sized {
+        self.add_style(Styles::Italic)
+    }
+    fn underline(self) -> ColoredString where Self: Sized {
+        self.add_style(Styles::Underline)
+    }
+    fn blink(self) -> ColoredString where Self: Sized {
+        self.add_style(Styles::Blink)
+    }
     /// Historical name of `Colorize::reversed`. May be removed in a future version. Please use
     /// `Colorize::reversed` instead
-    fn reverse(self) -> ColoredString;
+    fn reverse(self) -> ColoredString where Self: Sized {
+        self.reversed()
+    }
     /// This should be preferred to `Colorize::reverse`.
-    fn reversed(self) -> ColoredString;
-    fn hidden(self) -> ColoredString;
-    fn strikethrough(self) -> ColoredString;
+    fn reversed(self) -> ColoredString where Self: Sized {
+        self.add_style(Styles::Reversed)
+    }
+    fn hidden(self) -> ColoredString where Self: Sized {
+        self.add_style(Styles::Hidden)
+    }
+    fn strikethrough(self) -> ColoredString where Self: Sized {
+        self.add_style(Styles::Strikethrough)
+    }
 }
 
 impl ColoredString {
@@ -477,49 +499,19 @@ impl Colorize for ColoredString {
         self
     }
 
+    fn add_style<S: Into<Style>>(mut self, style: S) -> ColoredString {
+        self.style += style.into();
+        self
+    }
+    fn remove_style<S: Into<Style>>(mut self, style: S) -> ColoredString {
+        self.style -= style.into();
+        self
+    }
     fn clear(self) -> ColoredString {
         ColoredString {
             input: self.input,
             ..ColoredString::default()
         }
-    }
-    fn normal(self) -> ColoredString {
-        self.clear()
-    }
-    fn bold(mut self) -> ColoredString {
-        self.style.add(style::Styles::Bold);
-        self
-    }
-    fn dimmed(mut self) -> ColoredString {
-        self.style.add(style::Styles::Dimmed);
-        self
-    }
-    fn italic(mut self) -> ColoredString {
-        self.style.add(style::Styles::Italic);
-        self
-    }
-    fn underline(mut self) -> ColoredString {
-        self.style.add(style::Styles::Underline);
-        self
-    }
-    fn blink(mut self) -> ColoredString {
-        self.style.add(style::Styles::Blink);
-        self
-    }
-    fn reverse(self) -> ColoredString {
-        self.reversed()
-    }
-    fn reversed(mut self) -> ColoredString {
-        self.style.add(style::Styles::Reversed);
-        self
-    }
-    fn hidden(mut self) -> ColoredString {
-        self.style.add(style::Styles::Hidden);
-        self
-    }
-    fn strikethrough(mut self) -> ColoredString {
-        self.style.add(style::Styles::Strikethrough);
-        self
     }
 }
 
@@ -540,42 +532,20 @@ impl<'a> Colorize for &'a str {
         }
     }
 
+    fn add_style<S: Into<Style>>(self, style: S) -> ColoredString {
+        ColoredString::from(self).add_style(style)
+    }
+
+    fn remove_style<S: Into<Style>>(self, style: S) -> ColoredString {
+        ColoredString::from(self).remove_style(style)
+    }
+
     fn clear(self) -> ColoredString {
         ColoredString {
             input: String::from(self),
             style: style::CLEAR,
             ..ColoredString::default()
         }
-    }
-    fn normal(self) -> ColoredString {
-        self.clear()
-    }
-    fn bold(self) -> ColoredString {
-        ColoredString::from(self).bold()
-    }
-    fn dimmed(self) -> ColoredString {
-        ColoredString::from(self).dimmed()
-    }
-    fn italic(self) -> ColoredString {
-        ColoredString::from(self).italic()
-    }
-    fn underline(self) -> ColoredString {
-        ColoredString::from(self).underline()
-    }
-    fn blink(self) -> ColoredString {
-        ColoredString::from(self).blink()
-    }
-    fn reverse(self) -> ColoredString {
-        self.reversed()
-    }
-    fn reversed(self) -> ColoredString {
-        ColoredString::from(self).reversed()
-    }
-    fn hidden(self) -> ColoredString {
-        ColoredString::from(self).hidden()
-    }
-    fn strikethrough(self) -> ColoredString {
-        ColoredString::from(self).strikethrough()
     }
 }
 
