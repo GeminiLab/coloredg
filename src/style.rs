@@ -43,12 +43,6 @@ impl ops::Add<Styles> for Styles {
     }
 }
 
-impl Into<Style> for Styles {
-    fn into(self) -> Style {
-        Style(self.to_u8())
-    }
-}
-
 impl Styles {
     fn to_str<'a>(self) -> &'a str {
         match self {
@@ -96,8 +90,8 @@ impl Styles {
     }
 }
 
-pub static CLEAR: Style = Style(CLEARV);
-pub static ALL: Style = Style(
+pub static NO_STYLE: Style = Style(CLEARV);
+pub static ALL_STYLE: Style = Style(
     BOLD |
     UNDERLINE |
     REVERSED |
@@ -134,6 +128,12 @@ impl Style {
             .map(|s| s.to_str())
             .collect::<Vec<&str>>()
             .join(";")
+    }
+}
+
+impl From<Styles> for Style {
+    fn from(s: Styles) -> Self {
+        Style(s.to_u8())
     }
 }
 

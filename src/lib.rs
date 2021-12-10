@@ -39,10 +39,9 @@ pub mod control;
 mod style;
 
 pub use color::*;
+pub use style::{Style, Styles, NO_STYLE, ALL_STYLE};
 
 use std::{borrow::Cow, fmt, ops::Deref};
-
-pub use style::{Style, Styles};
 
 /// A string that may have color and/or style applied to it.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -380,7 +379,7 @@ impl ColoredString {
     /// assert_eq!(cstr.is_plain(), true);
     /// ```
     pub fn is_plain(&self) -> bool {
-        self.bgcolor.is_none() && self.fgcolor.is_none() && self.style == style::CLEAR
+        self.bgcolor.is_none() && self.fgcolor.is_none() && self.style == NO_STYLE
     }
 
     #[cfg(not(feature = "no-color"))]
@@ -399,7 +398,7 @@ impl ColoredString {
         }
 
         let mut res = String::from("\x1B[");
-        let mut has_wrote = if self.style != style::CLEAR {
+        let mut has_wrote = if self.style != NO_STYLE {
             res.push_str(&self.style.to_str());
             true
         } else {
@@ -468,7 +467,7 @@ impl Default for ColoredString {
             input: String::default(),
             fgcolor: None,
             bgcolor: None,
-            style: style::CLEAR,
+            style: NO_STYLE,
         }
     }
 }
@@ -543,7 +542,7 @@ impl<'a> Colorize for &'a str {
     fn clear(self) -> ColoredString {
         ColoredString {
             input: String::from(self),
-            style: style::CLEAR,
+            style: NO_STYLE,
             ..ColoredString::default()
         }
     }
