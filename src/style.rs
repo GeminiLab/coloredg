@@ -38,6 +38,7 @@ pub enum Styles {
 impl ops::Add<Styles> for Styles {
     type Output = Style;
 
+    #[allow(clippy::suspicious_arithmetic_impl)]
     fn add(self, rhs: Styles) -> Self::Output {
         Style(self.to_u8() | rhs.to_u8())
     }
@@ -90,7 +91,9 @@ impl Styles {
     }
 }
 
+#[allow(missing_docs)]
 pub static NO_STYLE: Style = Style(CLEARV);
+#[allow(missing_docs)]
 pub static ALL_STYLE: Style = Style(
     BOLD |
     UNDERLINE |
@@ -140,12 +143,14 @@ impl From<Styles> for Style {
 impl ops::Add<Styles> for Style {
     type Output = Self;
 
+    #[allow(clippy::suspicious_arithmetic_impl)]
     fn add(self, rhs: Styles) -> Self::Output {
         Self(self.0 | rhs.to_u8())
     }
 }
 
 impl ops::AddAssign<Styles> for Style {
+    #[allow(clippy::suspicious_op_assign_impl)]
     fn add_assign(&mut self, rhs: Styles) {
         self.0 |= rhs.to_u8();
     }
@@ -154,12 +159,14 @@ impl ops::AddAssign<Styles> for Style {
 impl ops::Sub<Styles> for Style {
     type Output = Self;
 
+    #[allow(clippy::suspicious_arithmetic_impl)]
     fn sub(self, rhs: Styles) -> Self::Output {
         Self(self.0 & !rhs.to_u8())
     }
 }
 
 impl ops::SubAssign<Styles> for Style {
+    #[allow(clippy::suspicious_arithmetic_impl)]
     fn sub_assign(&mut self, rhs: Styles) {
         self.0 &= !rhs.to_u8();
     }
@@ -168,12 +175,14 @@ impl ops::SubAssign<Styles> for Style {
 impl ops::Add<Style> for Style {
     type Output = Self;
 
+    #[allow(clippy::suspicious_arithmetic_impl)]
     fn add(self, rhs: Style) -> Self::Output {
         Self(self.0 | rhs.0)
     }
 }
 
 impl ops::AddAssign<Style> for Style {
+    #[allow(clippy::suspicious_op_assign_impl)]
     fn add_assign(&mut self, rhs: Style) {
         self.0 |= rhs.0;
     }
@@ -182,12 +191,14 @@ impl ops::AddAssign<Style> for Style {
 impl ops::Sub<Style> for Style {
     type Output = Self;
 
+    #[allow(clippy::suspicious_arithmetic_impl)]
     fn sub(self, rhs: Style) -> Self::Output {
         Self(self.0 & !rhs.0)
     }
 }
 
 impl ops::SubAssign<Style> for Style {
+    #[allow(clippy::suspicious_arithmetic_impl)]
     fn sub_assign(&mut self, rhs: Style) {
         self.0 &= !rhs.0
     }
